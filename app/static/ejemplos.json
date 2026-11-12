@@ -1,0 +1,66 @@
+[
+  {
+    "id": "corto",
+    "tag": "Corto",
+    "label": "Portafolio de un fotógrafo",
+    "team": 1,
+    "deadline": 0,
+    "description": "Página web de una sola sección para presentar a un fotógrafo freelance: una foto de portada, una breve descripción de su trabajo, una galería de seis fotos y sus datos de contacto (correo y WhatsApp). No lleva formularios ni inicio de sesión. Se publicará en un hosting gratuito."
+  },
+  {
+    "id": "pocos-pasos",
+    "tag": "Pocos pasos",
+    "label": "Sitio web de una cafetería",
+    "team": 2,
+    "deadline": 0,
+    "description": "Sitio web para una cafetería de barrio con página de inicio, menú de productos con fotos y precios, galería de imágenes, mapa de ubicación y un formulario para reservar mesas que llegue al correo del dueño. El diseño debe verse bien en celular. El sitio se publicará con un dominio propio y se le explicará al dueño cómo actualizar el menú."
+  },
+  {
+    "id": "medio",
+    "tag": "Medio",
+    "label": "Gestión de citas de una clínica",
+    "team": 4,
+    "deadline": 60,
+    "description": "Sistema web para una clínica privada que permita a los pacientes agendar, reprogramar y cancelar citas médicas, y a la secretaria y a los médicos gestionar sus agendas. Debe tener inicio de sesión con roles (paciente, médico, administrador), historial de citas por paciente, recordatorios automáticos por correo electrónico y reportes mensuales de atención. La información se guardará en una base de datos relacional y el sistema se publicará en un servidor en la nube. Al final, el personal de la clínica debe recibir capacitación y un manual de uso."
+  },
+  {
+    "id": "largo",
+    "tag": "Largo",
+    "label": "Plataforma de telemedicina",
+    "team": 6,
+    "deadline": 150,
+    "description": "Plataforma integral para una red de tres clínicas privadas que incluya: portal web y aplicación móvil para pacientes (agendar, reprogramar y cancelar citas, pagar en línea, ver resultados de exámenes y recetas), videoconsultas médicas en tiempo real, historia clínica electrónica con control de acceso por roles (paciente, médico, enfermería, laboratorio, farmacia, administrador) y auditoría de cada consulta. Debe integrarse con una pasarela de pagos, con el sistema de facturación electrónica y con los equipos del laboratorio para recibir resultados automáticamente. Se requiere migrar los datos históricos de pacientes desde el sistema antiguo, enviar notificaciones push, por correo y por WhatsApp, y generar reportes gerenciales con tableros de indicadores. Por la sensibilidad de los datos médicos, el sistema debe pasar pruebas de seguridad y cumplir la normativa de protección de datos personales. El despliegue será en la nube con respaldos automáticos y monitoreo. Al final se capacitará al personal de las tres clínicas por separado y se dará un periodo de soporte inicial."
+  },
+  {
+    "id": "ruido",
+    "tag": "Con ruido",
+    "label": "App de peluquería + cosas personales",
+    "team": 3,
+    "deadline": 0,
+    "description": "Quiero una aplicación móvil para una peluquería donde los clientes reserven citas, elijan al estilista y reciban recordatorios por WhatsApp. El dueño necesita ver la agenda del día y reportes de ventas semanales. Ah, y mañana tengo que comprar pan, llamar al dentista y acordarme de ver el partido de la noche. Mi prima se casa en diciembre y todavía no tengo vestido."
+  },
+  {
+    "id": "sin-software",
+    "tag": "Sin software",
+    "label": "Organizar una boda",
+    "team": 3,
+    "deadline": 0,
+    "description": "Quiero organizar la boda de mi hermana para ciento ochenta invitados en un salón al aire libre. Hay que contratar el catering con menú de tres tiempos, un DJ y un grupo en vivo, la decoración floral, fotógrafo y videógrafo, transporte para los invitados, el pastel, las invitaciones impresas y un plan B por si llueve. El presupuesto es limitado y hay que coordinar a toda la familia."
+  },
+  {
+    "id": "vaga",
+    "tag": "Muy vaga",
+    "label": "Aplicación de ventas en línea (una frase)",
+    "team": 3,
+    "deadline": 0,
+    "description": "Quiero hacer una aplicación de ventas en línea."
+  },
+  {
+    "id": "muy-corta",
+    "tag": "Demasiado corta",
+    "label": "«quiero una app»",
+    "team": 3,
+    "deadline": 0,
+    "description": "quiero una app"
+  }
+]

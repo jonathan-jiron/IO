@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planificador PERT-CPM con IA</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <img src="/static/favicon.svg" alt="" width="36" height="36">
+      <div>
+        <strong>Planificador PERT-CPM</strong>
+        <span>Ruta crítica y Gantt asistidos por IA</span>
+      </div>
+    </div>
+    <div class="aistatus" title="Estado de la conexión con la IA">
+      <span id="aiDot" class="dot"></span><span id="aiText">Verificando IA…</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ===================== Panel de proyecto ===================== -->
+  <aside class="panel">
+    <div class="panel-card">
+      <h2><span class="num">1</span> Tu proyecto</h2>
+
+      <label class="field"><span class="lblrow">Cargar un ejemplo <span class="opt">Demo</span></span>
+        <select id="exSel"><option value="">Elegir ejemplo…</option></select>
+      </label>
+
+      <label class="field">Descripción
+        <textarea id="desc" rows="5" placeholder="Describe el software: qué hará, módulos, integraciones, tipo de usuarios, despliegue, capacitación… Mientras más detalle, mejor el plan."></textarea>
+        <small>No necesitas indicar días: la IA estima los tiempos.</small>
+      </label>
+
+      <label class="field">Integrantes del equipo
+        <input id="team" type="number" min="1" max="30" value="4">
+      </label>
+
+      <div class="field">
+        <span class="lbl">Nombres del equipo</span>
+        <div id="nameFields" class="namegrid"></div>
+      </div>
+
+      <label class="field"><span class="lblrow">Plazo objetivo en días <span class="opt">Opcional</span></span>
+        <input id="deadline" type="number" min="0" step="1" value="0" placeholder="0 = sin plazo">
+        <small>Si lo indicas, se calcula la probabilidad de terminar a tiempo.</small>
+      </label>
+
+      <div id="error" class="alert err" hidden></div>
+      <button id="btnGen" class="btn primary block">
+        <span class="spin" aria-hidden="true"></span><span class="btxt">Generar plan</span>
+      </button>
+      <div id="status" class="muted center"></div>
+    </div>
+  </aside>
+
+  <!-- ========================== Resultados ======================== -->
+  <main class="content">
+
+    <div id="empty" class="empty">
+      <img src="/static/favicon.svg" alt="" width="64" height="64">
+      <h2>Tu plan aparecerá aquí</h2>
+      <p>Describe el proyecto a la izquierda y pulsa <b>Generar plan</b>. Verás el Gantt, la tabla y la ruta crítica; en otras páginas, el equipo y los tiempos, y el grafo de la red.</p>
+      <ol class="how">
+        <li><b>Compara</b> con proyectos de referencia</li>
+        <li><b>Estima</b> actividades y tiempos con IA</li>
+        <li><b>Calcula</b> la ruta crítica y reparte el trabajo</li>
+      </ol>
+    </div>
+
+    <div id="results" hidden>
+
+      <nav class="tabs" role="tablist" aria-label="Páginas de resultados">
+        <button class="tab active" role="tab" data-tab="plan"><span class="tn">1</span> Plan</button>
+        <button class="tab" role="tab" data-tab="team"><span class="tn">2</span> Equipo y tiempos</button>
+        <button class="tab" role="tab" data-tab="graph"><span class="tn">3</span> Grafo</button>
+      </nav>
+
+      <!-- ================= Página 1: Plan ================= -->
+      <div class="tabpage" id="page-plan">
+        <div id="notice"></div>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>Diagrama de Gantt</h2>
+            <div class="legend">
+              <span><i class="sw crit"></i>Crítica</span>
+              <span><i class="sw norm"></i>Con holgura</span>
+              <span><i class="sw slack"></i>Holgura</span>
+            </div>
+          </div>
+          <div id="gantt" class="scroll"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>Tabla PERT-CPM</h2>
+            <button id="btnCsv" class="btn sm">⬇ Descargar CSV</button>
+          </div>
+          <p class="muted">Edita a, m, b o personas y la red se recalcula al instante.</p>
+          <div class="scroll"><table class="tbl" id="table"></table></div>
+        </section>
+
+        <section class="card">
+          <h2>Ruta crítica</h2>
+          <div id="critical" class="chips"></div>
+          <p id="critNote" class="muted"></p>
+        </section>
+      </div>
+
+      <!-- ============ Página 2: Equipo y tiempos ============ -->
+      <div class="tabpage" id="page-team" hidden>
+        <section class="card">
+          <h2>Tiempos del proyecto</h2>
+          <div class="kpis" id="kpis"></div>
+          <div id="prob"></div>
+        </section>
+
+        <section class="card">
+          <h2>Equipo y asignación</h2>
+          <p class="muted">Las tareas se reparten según su duración y el número de personas que requieren, equilibrando la carga.</p>
+          <div id="teamEval"></div>
+          <div id="team-info"></div>
+          <div id="workload" class="wl"></div>
+          <div class="scroll"><table class="tbl small" id="assignTable"></table></div>
+        </section>
+
+        <section class="card">
+          <h2>Análisis de la IA</h2>
+          <p id="rationale" class="note"></p>
+          <div id="inputcheck"></div>
+          <div id="quality"></div>
+          <h3>Proyectos de referencia</h3>
+          <div class="scroll"><table class="tbl small" id="matches"></table></div>
+          <details id="assumptions"><summary>Supuestos de la IA</summary><ul></ul></details>
+        </section>
+      </div>
+
+      <!-- ================= Página 3: Grafo ================= -->
+      <div class="tabpage" id="page-graph" hidden>
+        <section class="card">
+          <div class="card-head">
+            <h2>Grafo de la red</h2>
+            <div class="legend">
+              <span><i class="sw crit"></i>Ruta crítica</span>
+              <span><i class="sw norm"></i>Con holgura</span>
+              <span class="zoom"><button class="btn sm" id="zOut" title="Alejar">−</button><button class="btn sm" id="zFit" title="Ajustar">Ajustar</button><button class="btn sm" id="zIn" title="Acercar">+</button></span>
+            </div>
+          </div>
+          <p class="muted" id="graphHint">Cada nodo es una actividad (ID, duración esperada, nombre, ES · EF · holgura). Haz clic en un nodo para elegirlo como <b>predecesor</b> y en otro como <b>posterior</b> de un paso nuevo.</p>
+          <div id="graph" class="graphbox"></div>
+          <div id="pickInfo" class="muted"></div>
+        </section>
+
+        <section class="card" id="editCard">
+          <div class="seg" role="tablist" aria-label="Modo de edición del grafo">
+            <button type="button" class="segbtn active" data-gmode="add">＋ Añadir paso</button>
+            <button type="button" class="segbtn" data-gmode="edit">✎ Editar, reubicar o eliminar</button>
+          </div>
+
+          <!-- ============ Modo: añadir ============ -->
+          <div id="modeAdd">
+            <p class="muted">Inserta una actividad entre un predecesor y un posterior; se recalcula la ruta crítica.</p>
+            <form id="addForm" class="addgrid">
+              <label class="field span2">Nombre del paso<input id="nName" required></label>
+              <label class="field"><span class="lblrow">Fase <span class="opt">Opcional</span></span><input id="nPhase"></label>
+              <label class="field">Personas<input id="nPeople" type="number" min="1" value="1"></label>
+              <label class="field">a · optimista<input id="nA" type="number" min="0" step="0.5" value="1"></label>
+              <label class="field">m · probable<input id="nM" type="number" min="0" step="0.5" value="2"></label>
+              <label class="field">b · pesimista<input id="nB" type="number" min="0" step="0.5" value="4"></label>
+              <span></span>
+              <label class="field span2">Paso predecesor<select id="nPred"></select></label>
+              <label class="field span2">Paso posterior<select id="nSucc"></select></label>
+              <div class="span4"><button class="btn primary" type="submit">Añadir y recalcular</button></div>
+            </form>
+            <div id="addError" class="alert err" hidden></div>
+          </div>
+
+          <!-- ============ Modo: editar ============ -->
+          <div id="modeEdit" hidden>
+            <p id="editHint" class="muted">Haz clic en un nodo del grafo para elegir el paso que quieres editar.</p>
+            <div id="editBody" hidden>
+              <h3 id="editTitle" class="edit-title"></h3>
+
+              <form id="editForm" class="addgrid">
+                <label class="field span2">Nombre del paso<input id="eName" required></label>
+                <label class="field"><span class="lblrow">Fase <span class="opt">Opcional</span></span><input id="ePhase"></label>
+                <label class="field">Personas<input id="ePeople" type="number" min="1" value="1"></label>
+                <label class="field">a · optimista<input id="eA" type="number" min="0" step="0.5"></label>
+                <label class="field">m · probable<input id="eM" type="number" min="0" step="0.5"></label>
+                <label class="field">b · pesimista<input id="eB" type="number" min="0" step="0.5"></label>
+                <span></span>
+                <label class="field span2"><span class="lblrow">Responsable fijo <span class="opt">Opcional</span></span>
+                  <select id="eOwner"></select>
+                  <small>Ej.: un especialista. Vacío = reparto automático.</small>
+                </label>
+                <div class="field span2">
+                  <span class="lbl">Si lo hace un experto</span>
+                  <div class="row-inline">
+                    <input id="eFactor" type="number" min="0.1" max="3" step="0.05" value="0.6" title="0.6 = 40 % menos tiempo">
+                    <button type="button" class="btn sm" id="btnFactor">Aplicar a a, m, b</button>
+                  </div>
+                  <small>Multiplica los tres tiempos. Ej.: 0.6 equivale a un 40 % menos de tiempo.</small>
+                </div>
+                <div class="span4"><button class="btn primary" type="submit">Guardar cambios y recalcular</button></div>
+              </form>
+
+              <div class="editsec">
+                <h4>Reubicar este paso</h4>
+                <p class="muted">Sale de su lugar actual (sus sucesoras se reconectan) y se inserta entre los pasos que elijas.</p>
+                <div class="addgrid">
+                  <label class="field span2">Nuevo predecesor<select id="mvPred"></select></label>
+                  <label class="field span2">Nuevo posterior<select id="mvSucc"></select></label>
+                  <div class="span4"><button type="button" class="btn" id="btnMove">Reubicar paso</button></div>
+                </div>
+              </div>
+
+              <div class="editsec">
+                <h4>Eliminar este paso</h4>
+                <p class="muted">Se quita de la red; las actividades que dependían de él pasan a depender de sus predecesoras.</p>
+                <button type="button" class="btn danger" id="btnDel">Eliminar paso</button>
+              </div>
+            </div>
+            <div id="editError" class="alert err" hidden></div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+    <footer class="foot">La IA solo estima: el cálculo PERT-CPM lo realiza el código de forma determinista.</footer>
+  </main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
