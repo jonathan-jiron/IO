@@ -121,7 +121,7 @@ function render(d, full) {
 function renderTop(d) {
   const m = d.meta || {};
   $("kpis").innerHTML = [
-    [(m.complexity_score ?? "—") + "/10", "Complejidad estimada"],
+    [m.complexity_score != null ? m.complexity_score + "/10" : "—", "Complejidad estimada"],
     [d.activities.length, "Actividades"],
     [f2(d.duration) + " d", "Duración esperada"],
     [f2(d.sigma) + " d", "Desviación estándar (σ)"],
@@ -474,7 +474,7 @@ fetch("/static/ejemplos.json").then((r) => r.json()).then((list) => {
     o.textContent = `${e.tag} · ${e.label}`;
     sel.appendChild(o);
   });
-  sel.addEventListener("change", () => {
+  sel.addEventListener("change", async () => {
     if (sel.value === "") return;
     const e = list[+sel.value];
     $("desc").value = e.description;
@@ -483,6 +483,24 @@ fetch("/static/ejemplos.json").then((r) => r.json()).then((list) => {
     renderNameFields();
     showError("error", "");
     sel.value = "";            // permite volver a elegir el mismo ejemplo
+    if (e.network) {
+      // caso de estudio: la red viene dada, se calcula con el motor (sin IA ni cuota)
+      try {
+        const data = await api("/api/compute", { activities: e.network, ...cfg() });
+        data.meta = {
+          complexity_score: null,
+          complexity_rationale: "Caso de estudio cargado directamente (sin IA): los tiempos y las precedencias son los del informe.",
+          assumptions: [], quality: null, input_check: null,
+        };
+        data.matches = [];
+        state = data; gZoom = null; pick = 0; editId = null;
+        render(data, true);
+        $("results").hidden = false; $("empty").hidden = true;
+        showTab("plan");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) { showError("error", err.message); }
+      return;
+    }
     $("desc").focus();
   });
 }).catch(() => { $("exSel").closest("label").hidden = true; });

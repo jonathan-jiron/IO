@@ -85,7 +85,8 @@ python server.py
 
 ## Ejemplos de demostración
 
-Hay 8 ejemplos dentro de la página (corto, pocos pasos, medio, largo, con ruido, sin software, muy vago y demasiado corto).
+Hay 9 ejemplos dentro de la página: el **caso de estudio** (la construcción de este proyecto, calculado **sin IA**) y 8 más
+(corto, pocos pasos, medio, largo, con ruido, sin software, muy vago y demasiado corto).
 La guía con el guion y los resultados observados está en [`docs/EJEMPLOS_DEMO.md`](docs/EJEMPLOS_DEMO.md).
 
 ## Pruebas
@@ -99,6 +100,7 @@ python test_rules.py     # reglas de sentido común
 python test_intake.py    # que la capacitación y el ciclo de vida no se pierdan
 python test_server.py    # rutas de rechazo del servidor
 python test_models.py    # cadena de modelos de Gemini
+python test_caso_estudio.py  # caso de estudio verificado con un método independiente
 python check_kb.py       # valida los 16 proyectos de la base de conocimiento
 ```
 
@@ -118,6 +120,9 @@ app/
 docs/
   EJEMPLOS_DEMO.md   Guía de demostración
   CHECKLIST_RUBRICA.md  Qué cubre el proyecto y qué falta para el informe
+  CASO_DE_ESTUDIO.md    Caso a resolver a mano: la construcción de este proyecto (12 actividades)
+  CASO_DE_ESTUDIO_CLAVE.md  Respuestas del caso (solo para verificar la solución manual)
+  PROMPT_NOTEBOOKLM.md  Prompt para generar las diapositivas
 ```
 
 ## Limitaciones

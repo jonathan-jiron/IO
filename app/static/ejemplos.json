@@ -1,5 +1,159 @@
 [
   {
+    "id": "caso-estudio",
+    "tag": "Caso de estudio",
+    "label": "Construcción de este proyecto (sin IA)",
+    "team": 4,
+    "deadline": 42,
+    "description": "Caso de estudio del informe: la planificación PERT-CPM de la construcción de este mismo sistema. La red de 12 actividades se carga directamente, sin usar la IA, para contrastarla con la solución manual.",
+    "network": [
+      {
+        "id": "A",
+        "name": "Levantamiento de requisitos y alcance",
+        "phase": "Requisitos",
+        "preds": [],
+        "a": 2,
+        "m": 3,
+        "b": 5,
+        "people": 2
+      },
+      {
+        "id": "B",
+        "name": "Diseño de la arquitectura y del flujo del sistema",
+        "phase": "Diseño",
+        "preds": [
+          "A"
+        ],
+        "a": 2,
+        "m": 3,
+        "b": 4,
+        "people": 2
+      },
+      {
+        "id": "C",
+        "name": "Motor PERT-CPM (cálculo y asignación)",
+        "phase": "Desarrollo",
+        "preds": [
+          "B"
+        ],
+        "a": 4,
+        "m": 5,
+        "b": 8,
+        "people": 1
+      },
+      {
+        "id": "D",
+        "name": "Base de conocimiento y búsqueda de referencias",
+        "phase": "Desarrollo",
+        "preds": [
+          "B"
+        ],
+        "a": 3,
+        "m": 4,
+        "b": 6,
+        "people": 1
+      },
+      {
+        "id": "E",
+        "name": "Integración con la IA (cliente de Gemini)",
+        "phase": "Desarrollo",
+        "preds": [
+          "B"
+        ],
+        "a": 3,
+        "m": 5,
+        "b": 8,
+        "people": 1
+      },
+      {
+        "id": "F",
+        "name": "Filtro de entrada y reglas de calidad",
+        "phase": "Desarrollo",
+        "preds": [
+          "D",
+          "E"
+        ],
+        "a": 3,
+        "m": 4,
+        "b": 6,
+        "people": 1
+      },
+      {
+        "id": "G",
+        "name": "Interfaz web: Gantt y tabla",
+        "phase": "Desarrollo",
+        "preds": [
+          "C"
+        ],
+        "a": 4,
+        "m": 6,
+        "b": 9,
+        "people": 2
+      },
+      {
+        "id": "H",
+        "name": "Interfaz web: grafo y edición de la red",
+        "phase": "Desarrollo",
+        "preds": [
+          "G"
+        ],
+        "a": 4,
+        "m": 6,
+        "b": 10,
+        "people": 2
+      },
+      {
+        "id": "I",
+        "name": "Integración del servidor con la interfaz",
+        "phase": "Desarrollo",
+        "preds": [
+          "F",
+          "H"
+        ],
+        "a": 2,
+        "m": 3,
+        "b": 5,
+        "people": 2
+      },
+      {
+        "id": "J",
+        "name": "Pruebas y ejemplos de demostración",
+        "phase": "Pruebas",
+        "preds": [
+          "I"
+        ],
+        "a": 3,
+        "m": 4,
+        "b": 6,
+        "people": 2
+      },
+      {
+        "id": "K",
+        "name": "Informe, README y diapositivas",
+        "phase": "Entrega",
+        "preds": [
+          "J"
+        ],
+        "a": 5,
+        "m": 7,
+        "b": 10,
+        "people": 3
+      },
+      {
+        "id": "L",
+        "name": "Presentación y demostración",
+        "phase": "Entrega",
+        "preds": [
+          "K"
+        ],
+        "a": 1,
+        "m": 1,
+        "b": 2,
+        "people": 4
+      }
+    ]
+  },
+  {
     "id": "corto",
     "tag": "Corto",
     "label": "Portafolio de un fotógrafo",

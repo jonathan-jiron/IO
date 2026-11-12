@@ -114,7 +114,7 @@ esas tres partes conviene que las redacten y entiendan los integrantes, y usar l
 
 ## Orden de trabajo recomendado
 
-1. Definir el **caso de estudio** y la red que se resolverá a mano (la del ejemplo «Corto» sirve).
+1. **Caso de estudio:** ya está definido en `docs/CASO_DE_ESTUDIO.md` (la construcción de este proyecto, 12 actividades). Ajusten los tiempos a su experiencia real.
 2. **Solución manual** de ese caso (paso 3).
 3. **3 casos de prueba** con resultados esperados, incluido el límite (paso 5).
 4. **Contrastación** manual vs. herramienta (paso 6).
