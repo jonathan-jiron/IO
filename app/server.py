@@ -73,10 +73,10 @@ def fail(msg: str, status: int = 400, **extra):
 
 
 GENERIC_HINTS = [
-    "Que tipo de sistema es (web, movil, escritorio, API, automatizacion...).",
-    "Quienes lo usaran (tipos de usuario o roles).",
-    "Cuales son sus funciones principales (al menos 2 o 3).",
-    "Si requiere integraciones (pagos, correo, otros sistemas) y donde se publicara.",
+    "Qué tipo de sistema es (web, móvil, escritorio, API, automatización...).",
+    "Quiénes lo usarán (tipos de usuario o roles).",
+    "Cuáles son sus funciones principales (al menos 2 o 3).",
+    "Si requiere integraciones (pagos, correo, otros sistemas) y dónde se publicará.",
 ]
 MIN_WORDS = 6        # menos palabras que esto: se rechaza sin gastar cuota de IA
 MIN_KB_SIM = 0.03    # similitud minima con la base de conocimiento (casi cero = sin coincidencia)
@@ -105,8 +105,8 @@ def generate():
     key = config.api_key()
     team = int(d.get("team_size") or 4)
     if len(desc.split()) < MIN_WORDS or len(desc) < 15:
-        return fail("La descripcion es demasiado corta para planificar el proyecto. Describe con mas detalle "
-                    "que sistema quieres construir.", 422, code="insufficient", hints=GENERIC_HINTS)
+        return fail("La descripción es demasiado corta para planificar el proyecto. Describe con más detalle "
+                    "qué sistema quieres construir.", 422, code="insufficient", hints=GENERIC_HINTS)
     if not key:
         return fail("Falta la API key de Gemini en el servidor. Abre el archivo app/.env, "
                     "escribe GEMINI_API_KEY=tu_clave y vuelve a intentar (no hace falta reiniciar).")
@@ -115,22 +115,22 @@ def generate():
     except GeminiError as e:
         return fail(str(e), 502)
     if not chk["is_software"]:
-        msg = ("No se detecto un proyecto de software en la descripcion. Esta herramienta solo planifica "
-               "software (aplicaciones, sistemas, APIs, automatizaciones...). Describe que sistema o aplicacion "
+        msg = ("No se detectó un proyecto de software en la descripción. Esta herramienta solo planifica "
+               "software (aplicaciones, sistemas, APIs, automatizaciones...). Describe qué sistema o aplicación "
                "quieres construir.")
         if chk["ignored_text"]:
             msg += f" Contenido ignorado: {chk['ignored_text']}"
         return fail(msg, 422, code="not_software")
     if chk["detail_level"] == "insuficiente":
-        return fail("El proyecto no esta lo suficientemente descrito para hacer una planificacion confiable: solo "
-                    "se indica una idea general. Anade mas detalle y vuelve a intentarlo.", 422,
+        return fail("El proyecto no está lo suficientemente descrito para hacer una planificación confiable: solo "
+                    "se indica una idea general. Añade más detalle y vuelve a intentarlo.", 422,
                     code="insufficient", hints=chk["missing_info"] or GENERIC_HINTS)
     plan_text, sw_desc, ignored = intake.reconcile(desc, chk)
     matches = retrieve(sw_desc, 3)
     if matches[0][1] < MIN_KB_SIM and chk["detail_level"] != "alto":
-        return fail("La descripcion no coincide con ningun proyecto de la base de conocimiento, asi que no hay "
-                    "referencias para estimar con confianza. Anade mas detalle (tipo de sistema, funciones, "
-                    "usuarios) e intentalo de nuevo.", 422, code="no_kb_match",
+        return fail("La descripción no coincide con ningún proyecto de la base de conocimiento, así que no hay "
+                    "referencias para estimar con confianza. Añade más detalle (tipo de sistema, funciones, "
+                    "usuarios) e inténtalo de nuevo.", 422, code="no_kb_match",
                     hints=chk["missing_info"] or GENERIC_HINTS)
     try:
         acts, meta = generate_plan(key, config.model(), plan_text, team,

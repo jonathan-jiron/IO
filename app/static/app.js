@@ -30,11 +30,6 @@ function renderNameFields() {
 }
 renderNameFields();
 
-fetch("/api/config").then((r) => r.json()).then((c) => {
-  $("aiDot").className = "dot " + (c.has_key ? "ok" : "bad");
-  $("aiText").textContent = c.has_key ? `IA lista (${c.model.split(",")[0]}${c.model.includes(",") ? " +" + (c.model.split(",").length - 1) + " de respaldo" : ""})` : "Falta la API key en el servidor (archivo .env)";
-}).catch(() => { $("aiText").textContent = "Sin conexión con el servidor"; });
-
 async function api(path, body) {
   let r;
   try {
@@ -43,7 +38,14 @@ async function api(path, body) {
     throw new Error("No se pudo contactar con el servidor local. Abre ejecutar.bat, deja su ventana abierta y entra a http://127.0.0.1:8765 (no abras el archivo index.html directamente).");
   }
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) { const err = new Error(data.error || "Error " + r.status); err.hints = data.hints || []; throw err; }
+  if (!r.ok) {
+    const fallback = r.status >= 500
+      ? "El servidor tuvo un problema al procesar la solicitud. Inténtalo otra vez; si continúa, reinicia la aplicación."
+      : "No se pudo completar la solicitud. Revisa los datos e inténtalo de nuevo.";
+    const err = new Error(data.error || fallback);
+    err.hints = data.hints || [];
+    throw err;
+  }
   return data;
 }
 
@@ -54,6 +56,8 @@ function showError(id, msg, hints) {
         ? `<div class="hints"><b>Para poder planificar, indica:</b><ul>${hints.map((h) => `<li>${esc(h)}</li>`).join("")}</ul></div>` : "")
     : "";
   el.hidden = !msg;
+  el.setAttribute("role", "alert");
+  el.setAttribute("aria-live", "assertive");
   if (msg) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
@@ -91,9 +95,10 @@ async function recompute(activities) {
     const data = await api("/api/compute", { activities, ...cfg() });
     keepMeta(data);
     state = data;
+    showError("resultError", "");
     render(data, false);
   } catch (e) {
-    alert(e.message);
+    showError("resultError", e.message, e.hints);
     render(state, false); // restaura valores previos en la tabla
   }
 }
@@ -184,7 +189,8 @@ $("table").addEventListener("change", (e) => {
   const acts = state.activities.map((a) => ({ ...a }));
   const a = acts.find((x) => x.id === t.dataset.id);
   a[t.dataset.f] = +t.value;
-  if (a.a > a.m || a.m > a.b) { alert("Se requiere a ≤ m ≤ b."); render(state, false); return; }
+  if (a.a > a.m || a.m > a.b) { showError("resultError", "Los tiempos deben cumplir a ≤ m ≤ b. Se restauraron los valores anteriores."); render(state, false); return; }
+  showError("resultError", "");
   recompute(acts);
 });
 
@@ -194,8 +200,8 @@ $("table").addEventListener("click", async (e) => {
   if (!confirm(`¿Eliminar el paso ${id}? Sus sucesores heredarán sus predecesoras.`)) return;
   try {
     const data = await api("/api/delete", { activities: state.activities, id, ...cfg() });
-    keepMeta(data); state = data; render(data, false); renderTop(data);
-  } catch (err) { alert(err.message); }
+    keepMeta(data); state = data; showError("resultError", ""); render(data, false); renderTop(data);
+  } catch (err) { showError("resultError", err.message, err.hints); }
 });
 
 /* -------------------------------------------------------------- Gantt */
@@ -221,7 +227,7 @@ function renderGantt(d) {
       s += `<rect x="${left + r.EF * sx}" y="${y + 7}" width="${slackW}" height="16" rx="3" fill="#cbd2e0" opacity=".6"/>`;
     const w = Math.max(2, r.te * sx);
     const devs = (d.assignment[r.id] || []).join(", ");
-    s += `<rect x="${left + r.ES * sx}" y="${y + 5}" width="${w}" height="20" rx="4" fill="${r.critical ? "#f0554a" : "#3b82f6"}">` +
+    s += `<rect x="${left + r.ES * sx}" y="${y + 5}" width="${w}" height="20" rx="4" fill="${r.critical ? "#e3a23b" : "#16877f"}">` +
          `<title>${esc(label)}\nInicio ${f2(r.ES)} · Fin ${f2(r.EF)} · ${f2(r.te)} d\n${esc(devs)}</title></rect>`;
     if (w > 46 && devs) {
       const txt = devs.length * 6.2 < w - 8 ? devs : (d.assignment[r.id] || []).length + " pers.";
@@ -402,14 +408,14 @@ function renderGraph(d) {
   const trunc = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
   let s = `<defs>
     <marker id="arrN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9aa3bb"/></marker>
-    <marker id="arrC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#f0554a"/></marker></defs>`;
+    <marker id="arrC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c0842f"/></marker></defs>`;
   let crit = "", norm = "";
   d.activities.forEach((a) => {
     preds[a.id].forEach((p) => {
       const x1 = xy[p].x + NW, y1 = xy[p].y + NH / 2, x2 = xy[a.id].x, y2 = xy[a.id].y + NH / 2;
       const dx = Math.max(24, (x2 - x1) / 2);
       const isCrit = row[p].critical && row[a.id].critical && Math.abs(row[p].EF - row[a.id].ES) < 1e-4;
-      const path = `<path d="M${x1} ${y1} C${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2 - 1} ${y2}" fill="none" stroke="${isCrit ? "#f0554a" : "#b4bbd0"}" stroke-width="${isCrit ? 2.4 : 1.4}" marker-end="url(#${isCrit ? "arrC" : "arrN"})"/>`;
+      const path = `<path d="M${x1} ${y1} C${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2 - 1} ${y2}" fill="none" stroke="${isCrit ? "#c0842f" : "#a8beb7"}" stroke-width="${isCrit ? 2.4 : 1.4}" marker-end="url(#${isCrit ? "arrC" : "arrN"})"/>`;
       if (isCrit) crit += path; else norm += path;
     });
   });
@@ -419,8 +425,8 @@ function renderGraph(d) {
     const tag = gmode === "edit" ? (r.id === editId ? "edit" : "") : (r.id === selP ? "pred" : r.id === selS ? "succ" : "");
     s += `<g class="gnode ${tag}" data-id="${esc(r.id)}" transform="translate(${p.x},${p.y})" style="cursor:pointer">
       <title>${esc(r.id)} · ${esc(r.name)}\nte ${f2(r.te)} d · ES ${f2(r.ES)} · EF ${f2(r.EF)} · holgura ${f2(r.slack)}</title>
-      <rect width="${NW}" height="${NH}" rx="10" fill="${r.critical ? "#fff1ef" : "#ffffff"}" stroke="${r.critical ? "#f0554a" : "#3b82f6"}" stroke-width="${r.critical ? 2 : 1.5}"/>
-      <text x="12" y="19" font-size="13" font-weight="700" fill="${r.critical ? "#a3261f" : "#1d4ed8"}">${esc(r.id)}</text>
+      <rect width="${NW}" height="${NH}" rx="10" fill="${r.critical ? "#fff8e9" : "#ffffff"}" stroke="${r.critical ? "#c0842f" : "#16877f"}" stroke-width="${r.critical ? 2 : 1.5}"/>
+      <text x="12" y="19" font-size="13" font-weight="700" fill="${r.critical ? "#80510d" : "#0f766e"}">${esc(r.id)}</text>
       <text x="${NW - 12}" y="19" font-size="12" text-anchor="end" fill="#1c2333" font-weight="600">${f2(r.te)} d</text>
       <text x="12" y="38" font-size="12" fill="#1c2333">${esc(trunc(r.name, 25))}</text>
       <text x="12" y="54" font-size="10.5" fill="#6b7385">ES ${f2(r.ES)} · EF ${f2(r.EF)} · H ${r.critical ? "0" : f2(r.slack)}</text>
@@ -560,6 +566,7 @@ function refreshEditPanel() {
 function applyResult(data) {
   keepMeta(data);
   state = data;
+  showError("resultError", "");
   render(data, false);
   renderTop(data);
 }

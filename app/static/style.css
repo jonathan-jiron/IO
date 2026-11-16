@@ -1,4 +1,4 @@
-/* Paleta derivada del favicon: indigo (fondo), coral (critica), azul (con holgura) */
+/* Interfaz del planificador */
 :root{
   --bg:#f3f4fa; --card:#ffffff; --ink:#1b2033; --ink2:#3a4260; --muted:#6a7290; --line:#e4e7f2;
   --indigo:#4f46e5; --indigo-d:#3b34c4; --indigo-dd:#312e81; --indigo-l:#eef0ff;
@@ -21,10 +21,6 @@ h3{margin:18px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06e
 .brand img{border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 .brand strong{display:block;font-size:17px;line-height:1.2}
 .brand span{font-size:12.5px;opacity:.85}
-.aistatus{display:flex;align-items:center;gap:8px;padding:6px 13px;border-radius:99px;background:rgba(255,255,255,.14);font-size:12.5px;border:1px solid rgba(255,255,255,.2)}
-.dot{width:9px;height:9px;border-radius:50%;background:#b8bfce;flex:none}
-.dot.ok{background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25)}
-.dot.bad{background:var(--coral);box-shadow:0 0 0 3px rgba(255,107,94,.28)}
 
 /* ---------- layout ---------- */
 .layout{max-width:1380px;margin:0 auto;padding:24px;display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;align-items:start}
@@ -150,7 +146,6 @@ summary{cursor:pointer;color:var(--indigo);font-weight:600}
   .kpis{grid-template-columns:1fr 1fr}
   .addgrid{grid-template-columns:1fr 1fr}.span2,.span4{grid-column:span 2}
   .brand span{display:none}
-  .aistatus{font-size:11.5px}
 }
 
 .opt{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;background:var(--indigo-l);color:var(--indigo);font-size:11px;font-weight:600;vertical-align:middle}
@@ -169,6 +164,7 @@ summary{cursor:pointer;color:var(--indigo);font-weight:600}
 .alert ul{margin:6px 0 0;padding-left:20px}
 .hints{margin-top:8px}.hints ul{margin:4px 0 0;padding-left:20px}
 #error{margin:0 0 12px;font-size:13.5px}
+#resultError{margin:0 0 14px}
 
 /* ---------- pestañas ---------- */
 .tabs{position:sticky;top:61px;z-index:10;display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:5px;margin-bottom:18px;box-shadow:var(--shadow)}
@@ -191,6 +187,14 @@ summary{cursor:pointer;color:var(--indigo);font-weight:600}
 .zoom .btn{padding:3px 10px}
 #pickInfo{margin-top:10px}
 @media(max-width:640px){.tab{font-size:12.5px;padding:9px 6px}.tab .tn{display:none}}
+@media(max-width:640px){
+  .topbar-in{padding:10px 14px;gap:8px}
+  .brand{gap:8px}.brand img{width:30px;height:30px}
+  .brand strong{font-size:14px}
+  .panel-card,.card{padding:16px}
+  .empty{padding:36px 18px}
+  .notice{align-items:flex-start;flex-direction:column}
+}
 
 /* ---------- edicion de la red ---------- */
 .seg{display:inline-flex;gap:4px;background:#eef0fb;border-radius:12px;padding:4px;margin-bottom:14px;flex-wrap:wrap}
@@ -218,6 +222,34 @@ textarea{padding-top:10px;padding-bottom:10px}
 .row-inline .btn{height:var(--ctl-h)}
 .zoom .btn{height:30px;padding:0 10px}
 .tbl input{height:30px;padding:0 7px}
+
+/* Nueva paleta: azul petróleo, verde menta y ámbar */
+:root{
+  --bg:#f1f5f3; --card:#fff; --ink:#172a2b; --ink2:#34494a; --muted:#657777; --line:#dce6e2;
+  --indigo:#0f766e; --indigo-d:#0b615b; --indigo-dd:#123b3a; --indigo-l:#e4f4f0;
+  --coral:#e3a23b; --coral-d:#b7791f; --coral-l:#fff4dc;
+  --sky:#16877f; --slack:#cad8d3; --ok:#15803d; --ok-l:#e8f6ed;
+  --warn-l:#fff4dc; --shadow:0 1px 2px rgba(23,42,43,.04),0 6px 20px rgba(23,42,43,.07);
+}
+.topbar{background:linear-gradient(110deg,#123b3a,#0f766e 58%,#27958b);box-shadow:0 2px 14px rgba(18,59,58,.28)}
+.btn.primary,.tab.active{background:linear-gradient(180deg,#16877f,#0f766e);border-color:#0b615b;box-shadow:0 3px 10px rgba(15,118,110,.25)}
+.btn.primary:hover{background:linear-gradient(180deg,#0f766e,#0b615b)}
+.tab.active{box-shadow:0 2px 8px rgba(15,118,110,.25)}
+.alert.err{background:#fff1ed;color:#9f382d;border-color:#f3c8bd}
+.chip{color:#80510d;border-color:#f0d79e}
+.tbl tr.crit td{background:#fff8e9}
+.tbl tr.crit:hover td{background:#fff1cf}
+.tbl tr.crit td:first-child{box-shadow:inset 4px 0 #e3a23b}
+.xbtn{color:#a04b3d}
+.xbtn.ed{color:#0f766e}
+.gnode.pred rect{stroke:#0f766e!important}
+.gnode.succ rect{stroke:#c0842f!important}
+.seg{background:#e4f4f0}
+.segbtn:hover{background:#d5ebe5}
+.segbtn.active{color:#0f766e}
+.eval.falta{background:#fff1ed;border-color:#f3c8bd}.eval.falta .eval-ic{background:#b94a3c}
+.eval.sobra .eval-ic{background:#c0842f}
+.brand img,.empty img{box-shadow:0 3px 14px rgba(15,118,110,.2)}
 .addgrid{align-items:start}
 .addgrid .field{margin-bottom:14px}
 .lblrow{min-height:20px}

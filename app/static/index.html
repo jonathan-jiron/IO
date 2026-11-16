@@ -18,9 +18,6 @@
         <span>Ruta crítica y Gantt asistidos por IA</span>
       </div>
     </div>
-    <div class="aistatus" title="Estado de la conexión con la IA">
-      <span id="aiDot" class="dot"></span><span id="aiText">Verificando IA…</span>
-    </div>
   </div>
 </header>
 
@@ -77,6 +74,8 @@
     </div>
 
     <div id="results" hidden>
+
+      <div id="resultError" class="alert err" role="alert" aria-live="assertive" hidden></div>
 
       <nav class="tabs" role="tablist" aria-label="Páginas de resultados">
         <button class="tab active" role="tab" data-tab="plan"><span class="tn">1</span> Plan</button>
