@@ -65,10 +65,15 @@ function showError(id, msg, hints) {
 $("btnGen").addEventListener("click", async () => {
   showError("error", "");
   const btn = $("btnGen");
+  const stages = ["Analizando proyecto...", "Generando actividades...", "Calculando PERT...", "Calculando ruta crítica...", "Preparando Gantt..."];
+  let stage = 0;
+  const stageTimer = setInterval(() => {
+    $("status").textContent = stages[Math.min(stage++, stages.length - 1)];
+  }, 1800);
   btn.disabled = true;
   btn.classList.add("loading");
   btn.querySelector(".btxt").textContent = "Generando plan…";
-  $("status").textContent = "Consultando a la IA… puede tardar hasta un par de minutos.";
+  $("status").textContent = stages[0];
   try {
     const data = await api("/api/generate", {
       description: $("desc").value, ...cfg(),
@@ -83,6 +88,7 @@ $("btnGen").addEventListener("click", async () => {
   } catch (e) {
     showError("error", e.message, e.hints);
   } finally {
+    clearInterval(stageTimer);
     btn.disabled = false;
     btn.classList.remove("loading");
     btn.querySelector(".btxt").textContent = state ? "Volver a generar plan" : "Generar plan";
@@ -108,6 +114,31 @@ function keepMeta(data) {
 
 $("deadline").addEventListener("change", () => { if (state) recompute(state.activities); });
 $("team").addEventListener("change", () => { renderNameFields(); if (state) recompute(state.activities); });
+$("teamMinus").addEventListener("click", () => {
+  $("team").value = Math.max(1, (+$("team").value || 1) - 1);
+  $("team").dispatchEvent(new Event("change"));
+});
+$("teamPlus").addEventListener("click", () => {
+  $("team").value = Math.min(30, (+$("team").value || 1) + 1);
+  $("team").dispatchEvent(new Event("change"));
+});
+$("desc").addEventListener("input", () => { $("charCount").textContent = `${$("desc").value.length} / 1000`; });
+$("examplesToggle").addEventListener("click", () => {
+  const box = $("quickExamples");
+  box.hidden = !box.hidden;
+  $("examplesToggle").innerHTML = box.hidden ? "¿Quieres empezar rápido? <b>Ver ejemplos ↓</b>" : "¿Quieres empezar rápido? <b>Ocultar ejemplos ↑</b>";
+});
+document.querySelectorAll(".quick-example").forEach((button) => {
+  button.addEventListener("click", () => {
+    $("desc").value = button.dataset.description;
+    $("desc").dispatchEvent(new Event("input"));
+    $("desc").focus();
+  });
+});
+$("improveDesc").addEventListener("click", () => {
+  $("desc").focus();
+  $("status").textContent = "Añade funciones, usuarios e integraciones para mejorar la estimación.";
+});
 
 /* ------------------------------------------------------------- render */
 function render(d, full) {
@@ -125,12 +156,21 @@ function render(d, full) {
 
 function renderTop(d) {
   const m = d.meta || {};
-  $("kpis").innerHTML = [
+  const teamKpis = [
     [m.complexity_score != null ? m.complexity_score + "/10" : "—", "Complejidad estimada"],
     [d.activities.length, "Actividades"],
     [f2(d.duration) + " d", "Duración esperada"],
     [f2(d.sigma) + " d", "Desviación estándar (σ)"],
-  ].map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${l}</span></div>`).join("");
+  ];
+  const summaryKpis = [
+    [f2(d.duration) + " d", "Duración estimada"],
+    [d.activities.length, "Actividades"],
+    [d.critical_path.length, "Actividades críticas"],
+    [d.team, "Integrantes"],
+    [d.probability == null ? "—" : (d.probability * 100).toFixed(0) + "%", "Probabilidad"],
+  ];
+  $("kpis").innerHTML = teamKpis.map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${l}</span></div>`).join("");
+  if ($("summaryKpis")) $("summaryKpis").innerHTML = summaryKpis.map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${l}</span></div>`).join("");
   $("rationale").textContent = m.complexity_rationale || "";
   $("rationale").hidden = !m.complexity_rationale;
   const ic = m.input_check;
@@ -545,6 +585,7 @@ function fillEdit(id) {
   $("editTitle").textContent = `Editando ${a.id} · ${a.name}`;
   $("eName").value = a.name; $("ePhase").value = a.phase || ""; $("ePeople").value = a.people;
   $("eA").value = +a.a.toFixed(2); $("eM").value = +a.m.toFixed(2); $("eB").value = +a.b.toFixed(2);
+  renderEditAssignees(id);
   const names = state.names || [];
   $("eOwner").innerHTML = '<option value="">— reparto automático —</option>' +
     names.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
@@ -555,6 +596,17 @@ function fillEdit(id) {
   $("mvPred").value = a.preds[0] || "";
   $("mvSucc").value = succsOf(id)[0] || "";
   showError("editError", "");
+}
+
+function renderEditAssignees(id) {
+  const assignees = (state.assignment && state.assignment[id]) || [];
+  $("editAssignees").innerHTML = `
+    <span aria-hidden="true">👥</span>
+    <div><b>Integrantes encargados</b>
+      ${assignees.length
+        ? `<div class="assignee-list">${assignees.map((name) => `<span class="assignee-chip">${esc(name)}</span>`).join("")}</div>`
+        : "<p>Esta actividad todavía no tiene integrantes asignados.</p>"}
+    </div>`;
 }
 
 function refreshEditPanel() {
@@ -592,7 +644,28 @@ $("editForm").addEventListener("submit", async (e) => {
     name: $("eName").value.trim(), phase: $("ePhase").value.trim(), people: p, a, m, b, owner: $("eOwner").value,
   });
   const keep = editId;
-  if (await editCall("/api/compute", { activities: acts })) fillEdit(keep);
+  if (await editCall("/api/compute", { activities: acts })) {
+    fillEdit(keep);
+    showSaveModal();
+  }
+});
+
+function showSaveModal() {
+  $("saveModal").hidden = false;
+  $("confirmSaveModal").focus();
+}
+
+function hideSaveModal() {
+  $("saveModal").hidden = true;
+}
+
+$("closeSaveModal").addEventListener("click", hideSaveModal);
+$("confirmSaveModal").addEventListener("click", hideSaveModal);
+$("saveModal").addEventListener("click", (e) => {
+  if (e.target === $("saveModal")) hideSaveModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("saveModal").hidden) hideSaveModal();
 });
 
 $("btnFactor").addEventListener("click", () => {

@@ -15,8 +15,13 @@
       <img src="/static/favicon.svg" alt="" width="36" height="36">
       <div>
         <strong>Planificador PERT-CPM</strong>
-        <span>Ruta crítica y Gantt asistidos por IA</span>
+        <span>Planificación de proyectos · PERT · CPM · Gantt</span>
       </div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" type="button" title="Ayuda" aria-label="Ayuda">?</button>
+      <span class="top-separator"></span>
+      <span class="avatar" aria-label="Perfil de usuario">SC</span>
     </div>
   </div>
 </header>
@@ -26,36 +31,59 @@
   <!-- ===================== Panel de proyecto ===================== -->
   <aside class="panel">
     <div class="panel-card">
-      <h2><span class="num">1</span> Tu proyecto</h2>
-
-      <label class="field"><span class="lblrow">Cargar un ejemplo <span class="opt">Demo</span></span>
-        <select id="exSel"><option value="">Elegir ejemplo…</option></select>
-      </label>
-
-      <label class="field">Descripción
-        <textarea id="desc" rows="5" placeholder="Describe el software: qué hará, módulos, integraciones, tipo de usuarios, despliegue, capacitación… Mientras más detalle, mejor el plan."></textarea>
-        <small>No necesitas indicar días: la IA estima los tiempos.</small>
-      </label>
-
-      <label class="field">Integrantes del equipo
-        <input id="team" type="number" min="1" max="30" value="4">
-      </label>
-
-      <div class="field">
-        <span class="lbl">Nombres del equipo</span>
-        <div id="nameFields" class="namegrid"></div>
+      <div class="wizard-head">
+        <span class="eyebrow">NUEVO PLAN</span>
+        <h1>Configura tu proyecto</h1>
       </div>
+      <ol class="steps" aria-label="Progreso del plan">
+        <li class="active"><b>1</b><span>Proyecto</span></li>
+        <li><b>2</b><span>Equipo</span></li>
+        <li><b>3</b><span>Planificación</span></li>
+        <li><b>4</b><span>Resultado</span></li>
+      </ol>
 
-      <label class="field"><span class="lblrow">Plazo objetivo en días <span class="opt">Opcional</span></span>
-        <input id="deadline" type="number" min="0" step="1" value="0" placeholder="0 = sin plazo">
-        <small>Si lo indicas, se calcula la probabilidad de terminar a tiempo.</small>
-      </label>
+      <section class="wizard-section">
+        <div class="section-title"><span class="step-badge">01</span><div><h2>Información del proyecto</h2><p>Cuéntanos qué quieres construir</p></div></div>
+        <button id="examplesToggle" class="examples-toggle" type="button">¿Quieres empezar rápido? <b>Ver ejemplos ↓</b></button>
+        <div id="quickExamples" class="quick-examples" hidden>
+          <button type="button" class="quick-example" data-description="Sistema web de ventas con catálogo de productos, carrito, pagos en línea, gestión de inventario y roles para administradores y clientes."><span>◈</span>Sistema de ventas</button>
+          <button type="button" class="quick-example" data-description="Sistema web para gestionar vuelos, pasajeros, reservas, pagos, horarios y notificaciones para clientes y personal de la aerolínea."><span>✈</span>Sistema de vuelos</button>
+          <button type="button" class="quick-example" data-description="Aplicación móvil de delivery con restaurantes, catálogo, pedidos, pagos, seguimiento y panel para repartidores y administradores."><span>⌁</span>Aplicación delivery</button>
+          <button type="button" class="quick-example" data-description="Sistema hospitalario para gestionar pacientes, citas médicas, historias clínicas, facturación, especialistas y notificaciones."><span>＋</span>Sistema hospitalario</button>
+        </div>
+        <label class="field"><span>Describe tu proyecto</span>
+          <textarea id="desc" rows="5" maxlength="1000" placeholder="Ej. Sistema web para gestionar reservas de vuelos, pasajeros, pagos y vuelos."></textarea>
+          <div class="field-meta"><small>La IA estimará actividades y tiempos automáticamente.</small><small id="charCount">0 / 1000</small></div>
+        </label>
+        <button id="improveDesc" class="btn ai-outline" type="button">✨ Mejorar descripción con IA</button>
+        <label class="field example-select"><span class="lblrow">Cargar ejemplo completo <span class="opt">Demo</span></span>
+          <select id="exSel"><option value="">Elegir ejemplo…</option></select>
+        </label>
+      </section>
+
+      <section class="wizard-section">
+        <div class="section-title"><span class="step-badge">02</span><div><h2>Equipo</h2><p>Define quién participará</p></div></div>
+        <label class="field">¿Cuántas personas participarán?
+          <div class="number-control"><button type="button" id="teamMinus" aria-label="Reducir equipo">−</button><input id="team" type="number" min="1" max="30" value="4"><button type="button" id="teamPlus" aria-label="Aumentar equipo">+</button></div>
+        </label>
+        <div class="field"><span class="lbl">Integrantes del equipo</span><div id="nameFields" class="namegrid"></div><small>Puedes editar los nombres directamente.</small></div>
+      </section>
+
+      <section class="wizard-section">
+        <div class="section-title"><span class="step-badge">03</span><div><h2>Planificación</h2><p>Ajusta los parámetros del cálculo</p></div></div>
+        <label class="field"><span class="lblrow">Plazo objetivo en días <span class="opt">Opcional</span></span>
+          <input id="deadline" type="number" min="0" step="1" value="0" placeholder="0 = sin plazo">
+          <small>Se calculará la probabilidad de terminar a tiempo.</small>
+        </label>
+        <div class="planning-note"><span>◌</span><div><b>Estimaciones inteligentes</b><small>PERT usará tres escenarios para cada actividad.</small></div></div>
+      </section>
 
       <div id="error" class="alert err" hidden></div>
       <button id="btnGen" class="btn primary block">
-        <span class="spin" aria-hidden="true"></span><span class="btxt">Generar plan</span>
+        <span class="spin" aria-hidden="true"></span><span class="btxt">✨ Generar plan PERT-CPM →</span>
       </button>
-      <div id="status" class="muted center"></div>
+      <div id="status" class="muted center" aria-live="polite"></div>
+      <p class="cta-hint">✦ La IA estimará las actividades y tiempos automáticamente.</p>
     </div>
   </aside>
 
@@ -63,41 +91,39 @@
   <main class="content">
 
     <div id="empty" class="empty">
-      <img src="/static/favicon.svg" alt="" width="64" height="64">
-      <h2>Tu plan aparecerá aquí</h2>
-      <p>Describe el proyecto a la izquierda y pulsa <b>Generar plan</b>. Verás el Gantt, la tabla y la ruta crítica; en otras páginas, el equipo y los tiempos, y el grafo de la red.</p>
-      <ol class="how">
-        <li><b>Compara</b> con proyectos de referencia</li>
-        <li><b>Estima</b> actividades y tiempos con IA</li>
-        <li><b>Calcula</b> la ruta crítica y reparte el trabajo</li>
-      </ol>
+      <div class="welcome-art" aria-hidden="true"><div class="art-calendar">✦<span>27</span><i></i><i></i><i></i></div><div class="art-line line-one"></div><div class="art-line line-two"></div><div class="art-dot"></div></div>
+      <span class="eyebrow">PLANIFICACIÓN INTELIGENTE</span>
+      <h2><span>Planifica tu proyecto</span><br>con <em>inteligencia artificial</em></h2>
+      <p>Convierte una idea en un plan de trabajo con PERT, CPM y Gantt. Obtén estimaciones inteligentes, calcula la ruta crítica y organiza tu equipo de forma eficiente.</p>
+      <div class="feature-grid">
+        <div class="feature"><span class="feature-icon blue">◒</span><b>PERT</b><small>Estimación de actividades</small></div>
+        <div class="feature"><span class="feature-icon navy">⌁</span><b>CPM</b><small>Ruta crítica</small></div>
+        <div class="feature"><span class="feature-icon sky">▤</span><b>Gantt</b><small>Cronograma visual</small></div>
+        <div class="feature"><span class="feature-icon purple">✦</span><b>IA</b><small>Sugerencias inteligentes</small></div>
+      </div>
+      <div class="how-new"><div><b><span>01</span> Analiza</b><p>Compara tu proyecto con proyectos de referencia.</p></div><i>→</i><div><b><span>02</span> Estima</b><p>La IA propone actividades y tiempos.</p></div><i>→</i><div><b><span>03</span> Optimiza</b><p>PERT-CPM calcula la ruta crítica y la distribución del trabajo.</p></div></div>
+      <div class="ai-card"><span>✨</span><div><b>Inteligencia artificial</b><p>La IA propone actividades y sus estimaciones. Los cálculos PERT-CPM y la ruta crítica se ejecutan de forma determinista para garantizar resultados reproducibles.</p></div></div>
     </div>
 
     <div id="results" hidden>
 
       <div id="resultError" class="alert err" role="alert" aria-live="assertive" hidden></div>
 
+      <section id="resultSummary" class="result-summary">
+        <div><span class="eyebrow">RESUMEN DEL PLAN</span><h2>Tu proyecto está listo para analizar</h2><p>Revisa las actividades, tiempos y ruta crítica calculados.</p></div>
+        <div class="kpis" id="summaryKpis"></div>
+      </section>
       <nav class="tabs" role="tablist" aria-label="Páginas de resultados">
-        <button class="tab active" role="tab" data-tab="plan"><span class="tn">1</span> Plan</button>
-        <button class="tab" role="tab" data-tab="team"><span class="tn">2</span> Equipo y tiempos</button>
-        <button class="tab" role="tab" data-tab="graph"><span class="tn">3</span> Grafo</button>
+        <button class="tab active" role="tab" data-tab="plan">📊 Actividades</button>
+        <button class="tab" role="tab" data-tab="gantt">📅 Gantt</button>
+        <button class="tab" role="tab" data-tab="critical">🔴 Ruta crítica</button>
+        <button class="tab" role="tab" data-tab="team">👥 Equipo</button>
+        <button class="tab" role="tab" data-tab="graph">🔗 Red PERT</button>
       </nav>
 
       <!-- ================= Página 1: Plan ================= -->
       <div class="tabpage" id="page-plan">
         <div id="notice"></div>
-
-        <section class="card">
-          <div class="card-head">
-            <h2>Diagrama de Gantt</h2>
-            <div class="legend">
-              <span><i class="sw crit"></i>Crítica</span>
-              <span><i class="sw norm"></i>Con holgura</span>
-              <span><i class="sw slack"></i>Holgura</span>
-            </div>
-          </div>
-          <div id="gantt" class="scroll"></div>
-        </section>
 
         <section class="card">
           <div class="card-head">
@@ -108,11 +134,17 @@
           <div class="scroll"><table class="tbl" id="table"></table></div>
         </section>
 
+      </div>
+
+      <div class="tabpage" id="page-gantt" hidden>
         <section class="card">
-          <h2>Ruta crítica</h2>
-          <div id="critical" class="chips"></div>
-          <p id="critNote" class="muted"></p>
+          <div class="card-head"><div><span class="eyebrow">CRONOGRAMA VISUAL</span><h2>Diagrama de Gantt</h2></div><div class="legend"><span><i class="sw crit"></i>Crítica</span><span><i class="sw norm"></i>Con holgura</span><span><i class="sw slack"></i>Holgura</span></div></div>
+          <div id="gantt" class="scroll"></div>
         </section>
+      </div>
+
+      <div class="tabpage" id="page-critical" hidden>
+        <section class="card critical-hero"><span class="eyebrow">ANÁLISIS DE DEPENDENCIAS</span><h2>Ruta crítica del proyecto</h2><p class="muted">Estas actividades determinan la duración total. Cualquier retraso en ellas afecta la fecha final.</p><div id="critical" class="chips"></div><p id="critNote" class="muted"></p><div id="prob"></div></section>
       </div>
 
       <!-- ============ Página 2: Equipo y tiempos ============ -->
@@ -120,7 +152,6 @@
         <section class="card">
           <h2>Tiempos del proyecto</h2>
           <div class="kpis" id="kpis"></div>
-          <div id="prob"></div>
         </section>
 
         <section class="card">
@@ -188,6 +219,7 @@
             <p id="editHint" class="muted">Haz clic en un nodo del grafo para elegir el paso que quieres editar.</p>
             <div id="editBody" hidden>
               <h3 id="editTitle" class="edit-title"></h3>
+              <div id="editAssignees" class="assignee-panel"></div>
 
               <form id="editForm" class="addgrid">
                 <label class="field span2">Nombre del paso<input id="eName" required></label>
@@ -236,6 +268,16 @@
     </div>
     <footer class="foot">La IA solo estima: el cálculo PERT-CPM lo realiza el código de forma determinista.</footer>
   </main>
+</div>
+
+<div id="saveModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
+  <div class="modal-card">
+    <button id="closeSaveModal" class="modal-close" type="button" aria-label="Cerrar">×</button>
+    <div class="success-icon" aria-hidden="true">✓</div>
+    <h2 id="saveModalTitle">Cambios guardados correctamente</h2>
+    <p>La actividad y sus asignaciones se actualizaron en el plan PERT-CPM.</p>
+    <button id="confirmSaveModal" class="btn primary" type="button">Continuar</button>
+  </div>
 </div>
 
 <script src="/static/app.js"></script>
